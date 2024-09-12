@@ -1,3 +1,10 @@
 __pycache__
 *.json
 .env
+results
+uploads
+.vscode
+.pytest_cache
+main.py
+upload.py
+logs

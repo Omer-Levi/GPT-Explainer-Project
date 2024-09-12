@@ -1,74 +1,102 @@
-# GPT-Explainer Project
 
-## Introduction
+# PowerPoint Text Extractor and GPT Explainer
 
-Learning Software Development can be challenging, especially when the lecture presentations are unclear. This project aims to implement a Python script that explains PowerPoint presentations using the GPT-3.5 AI model. The script takes a presentation file as input, extracts text from each slide, sends the text to GPT for explanation, and saves the results in an output JSON file.
+## Overview
 
-## Requirements
+This project is designed to upload a PowerPoint file, extract the text from each slide, and generate explanations for the extracted text using OpenAI's GPT-3.5 model. The system is composed of several components:
+- A Flask web server to handle file uploads and status checks.
+- An explainer module to process the PowerPoint file and generate explanations.
+- A client module to interact with the web server.
+- Test scripts to ensure the system works as expected.
+- Logging to keep track of operations and issues.
 
-- Python 3.7+
-- `openai` library
-- `python-pptx` library
-- `aiofiles` library
-- `pytest` for testing
+## Components
 
-## Installation
+### 1. Flask Web Server (`server.py`)
+Handles file uploads, triggers the explainer to process the file, and provides status updates.
 
-1. **Clone the repository:**
-    ```sh
-    git clone https://github.com/Omer-Levi/GPT-Explainer-Project.git
-    cd gpt-explainer
-    ```
+### 2. Explainer Module (`explainer.py`)
+Processes the uploaded PowerPoint file, extracts text, and generates explanations using GPT-3.5.
 
-2. **Set your OpenAI API key:**
-    ```sh
-    export OPENAI_API_KEY='your-api-key'  # On Windows use `set OPENAI_API_KEY=your-api-key`
-    ```
+### 3. PowerPoint Reader (`read_pptx.py`)
+Extracts text from each slide in the PowerPoint file.
+
+### 4. Client Module (`client.py`)
+Provides a convenient interface for Python developers to interact with the web server.
+
+### 5. System Tests (`test_system.py`)
+End-to-end tests to ensure the system functions correctly.
+
+### 6. Logging
+Both the Flask server and the explainer module generate logs that are saved in separate files for each day, retaining logs from the last 5 days.
 
 ## Usage
 
-To run the script and generate explanations for the slides in a PowerPoint presentation:
+### Running the Server
 
-```sh
-python main.py ./test.pptx
+1. Start the Flask server:
+    ```bash
+    python server/server.py
+    ```
+
+### Using the Client
+
+You can use the client module to interact with the server. Here is an example of how to upload a file and check its status:
+
+```python
+from client import Client
+
+client = Client("http://127.0.0.1:5000")
+
+# Upload a PowerPoint file
+uid = client.upload("path_to_your_pptx_file.pptx")
+print(f"File uploaded successfully. UID: {uid}")
+
+# Check the status of the file
+status = client.status(uid)
+print(f"Status: {status.status}")
+print(f"Filename: {status.filename}")
+print(f"Timestamp: {status.timestamp}")
+print(f"Explanation: {status.explanation}")
+
+if status.is_done():
+    print("The file has been processed.")
+else:
+    print("The file is still being processed.")
 ```
 
-This will generate a JSON file named `test.json` with explanations for each slide.
+### Running Tests
 
-## File Structure
+You can run the tests to ensure the system is functioning correctly:
 
-- `main.py`: The main script that runs the process.
-- `read_pptx.py`: A module to read and extract text from PowerPoint files.
-- `test.pptx`: A sample PowerPoint presentation for testing.
-- `test_system.py`: Pytest test file to run system tests.
-
-## Running Tests
-
-To run the system test that checks if the script processes the presentation and generates the JSON file:
-
-```sh
-python -m pytest -v test_system.py
+```bash
+pytest tests/test_system.py
 ```
 
-## Code Overview
+## Logging
 
-### `main.py`
-This script handles the main flow of the program:
+Logs are saved in the `logs` directory with separate subfolders for the server and explainer. Each log file is rotated daily, and logs from the last 5 days are retained.
 
-- Loads the OpenAI API key.
-- Extracts text from the PowerPoint file.
-- Sends the extracted text to the GPT-3.5 model for explanation.
-- Saves the explanations to a JSON file.
+- Server logs: `logs/server/server.log`
+- Explainer logs: `logs/explainer/explainer.log`
 
-### `read_pptx.py`
-This module contains the ReadPptx class, which handles:
+## Directory Structure
 
-- Reading the PowerPoint file.
-- Extracting text from text boxes and placeholders on each slide.
-
-### `test_system.py`
-This file contains a single system test to ensure that the script works as expected:
-
-- It runs the main script with a sample PowerPoint file.
-- Checks if the output JSON file is created.
-- Verifies the content of the JSON file.
+```
+<repository_name>/
+├── client/
+│   ├── client.py
+├── explainer/
+│   ├── explainer.py
+│   ├── read_pptx.py
+├── server/
+│   ├── server.py
+├── tests/
+│   ├── test_system.py
+├── logs/
+│   ├── server/
+│   ├── explainer/
+├── .env
+├── requirements.txt
+└── README.md
+```
